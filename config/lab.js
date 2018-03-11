@@ -1,0 +1,1 @@
+const labdasar = module.exports = 1;
