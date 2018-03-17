@@ -8,27 +8,44 @@ const config = require('./config/database');
 
 // Connect To Database
 mongoose.Promise = require('bluebird');
-mongoose.connect(config.database, { promiseLibrary: require('bluebird') })
+mongoose
+  .connect(config.database, { promiseLibrary: require('bluebird') })
   .then(() => console.log(`Connected to database ${config.database}`))
-  .catch((err) => console.log(`Database error: ${err}`));
+  .catch(err => console.log(`Database error: ${err}`));
 
 const app = express();
 
 const mahasiswa = require('./routes/mahasiswa');
 const matkul = require('./routes/matkul');
+const matakuliah = require('./routes/mata-kuliah');
 const absensi = require('./routes/absensi');
-
+const fileRoutes = require('./routes/file');
+const materi = require('./routes/materi');
 // Port Number
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 8080;
 
 // CORS Middleware
 app.use(cors());
 
 // Set Static Folder
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Body Parser Middleware
 app.use(bodyParser.json());
+
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'POST, GET, PATCH, DELETE, OPTIONS'
+  );
+  next();
+});
 
 // Passport Middleware
 app.use(passport.initialize());
@@ -37,8 +54,11 @@ app.use(passport.session());
 require('./config/passport')(passport);
 
 app.use('/mahasiswa', mahasiswa);
-app.use('/matakuliah', matkul);
+app.use('/matkul', matkul);
 app.use('/absensi', absensi);
+app.use('/file', fileRoutes);
+app.use('/matakuliah', matakuliah);
+app.use('/materi', materi);
 
 // Index Route
 app.get('/', (req, res) => {
@@ -47,5 +67,5 @@ app.get('/', (req, res) => {
 
 // Start Server
 app.listen(port, () => {
-  console.log('Server started on port '+port);
+  console.log('Server started on port ' + port);
 });
