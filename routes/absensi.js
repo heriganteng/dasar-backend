@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const config = require('../config/database');
-const Matkul = require('../models/matkul');
+const Kelas = require('../models/kelas');
 const Absensi = require('../models/absensi');
 const labdasar = require('../config/lab');
 
@@ -14,30 +14,23 @@ function convertTime(now, data){
 // Get Asisten
 router.get('/:id', (req, res, next) => {
   let presentDate = new Date();
-  Matkul.getPresentMatkul(labdasar, {_id: req.params.id, hari: presentDate.getDay()}, (err, matkul) => {
+  let presentTime = presentDate.getHours()*60 + presentDate.getMinutes();
+  Kelas.getPresentKelas(labdasar, {_id: req.params.id, hari: presentDate.getDay(), jam_mulai: {$lt : presentTime}, jam_selesai: {$gt : presentTime}}, (err, Kelas) => {
     if(err) throw err;
-    if(!matkul){
+    if(!Kelas){
       return res.json({success: false, msg: 'Tidak ada mata kuliah'});
     }
-    let waktuMatkul = {
-      mulai: matkul.jam_mulai.split(':'),
-      selesai : matkul.jam_selesai.split(':')
-    };
-    let presentTime = {
-      mulai: convertTime(presentDate,waktuMatkul.mulai),
-      selesai: convertTime(presentDate, waktuMatkul.selesai)
-    };
 
     let listAsisten = new Array();    
-    for(let i = 0; i < matkul.asisten.length; i++){
-      let element = matkul.asisten[i];
-      Absensi.getStatus(element, matkul._id, presentTime, (err, absensi) => {
+    for(let i = 0; i < Kelas.asisten.length; i++){
+      let element = Kelas.asisten[i];
+      Absensi.getStatus(element, Kelas._id, presentTime, (err, absensi) => {
         if(!absensi){
           listAsisten.push({nim: element, hadir: false});
         } else {
           listAsisten.push({nim: element, hadir: true});
         }
-        if(i == matkul.asisten.length - 1){
+        if(i == Kelas.asisten.length - 1){
           res.json({success: true, data: listAsisten});
         }
       });
@@ -48,26 +41,21 @@ router.get('/:id', (req, res, next) => {
 // Absen Ngawas
 router.post('/:id', (req, res, next) => {
   let presentDate = new Date();
-  Matkul.getMatkulById(req.params.id, (err, matkul) => {
+  let presentTime = presentDate.getHours()*60 + presentDate.getMinutes();
+  Kelas.getKelasById(req.params.id, (err, kelas) => {
     if(err) throw err;
-    if(!matkul){
+    if(!kelas){
       return res.json({success: false, msg: 'Tidak ada mata kuliah'});
     }
-    let mulai = matkul.jam_mulai.split(':');
-    let selesai = matkul.jam_selesai.split(':');
-    let menitMatkul = {
-      mulai: (mulai[0]*60)+parseInt(mulai[1]),
-      selesai: (selesai[0]*60)+parseInt(selesai[1])
-    };
-    let menitPresent = (presentDate.getHours()*60)+presentDate.getMinutes();
-    if (menitMatkul.mulai <= menitPresent && menitMatkul.selesai >= menitPresent){
+    if (kelas.jam_mulai <= presentTime && kelas.jam_selesai >= presentTime){
       let newAbsensi = new Absensi({
-        id_matkul: matkul._id,
+        id_matkul: kelas._id,
         nim: req.body.nim,
         hadir: req.body.hadir,
         waktu: presentDate.getTime()
       });
-      Absensi.setAbsensi(newAbsensi, (err, matkul) => {
+
+      Absensi.setAbsensi(newAbsensi, (err, kelas) => {
         if(err){
           res.json({success: false, msg: "Absen gagal"});
         } else {
@@ -76,6 +64,19 @@ router.post('/:id', (req, res, next) => {
       });
     } else {
       res.json({success: false, msg: "Timeout, refresh halaman."});
+    }
+  });
+});
+
+//Edit Absensi
+router.post('/edit/:id', (req, res, next) => {
+  let presentDate = new Date();
+  let presentTime = presentDate.getHours()*60 + presentDate.getMinutes();
+  Absensi.editAbsensi(req.params.id, req.params.body, (err, kelas) => {
+    if(err){
+      res.json({success: false, msg: "Perubahan gagal"});
+    } else {
+      res.json({success: true, msg: "Perubahan berhasil"});
     }
   });
 });

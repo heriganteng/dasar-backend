@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
 
-// Skema Matkul
-const MatkulSchema = mongoose.Schema({
+// Skema Kelas
+const KelasSchema = mongoose.Schema({
   kode_matkul: {
     type: String,
     required: true
@@ -21,11 +21,11 @@ const MatkulSchema = mongoose.Schema({
     required: true
   },
   jam_mulai: {
-    type: String,
+    type: Number,
     required: true
   },
   jam_selesai: {
-    type: String
+    type: Number
   },
   jumlah_sks: {
     type: Number,
@@ -41,22 +41,22 @@ const MatkulSchema = mongoose.Schema({
   }
 });
 
-const Matkul = module.exports = mongoose.model('Matkul', MatkulSchema);
+const Kelas = module.exports = mongoose.model('Kelas', KelasSchema);
 
-module.exports.getMatkul = function(lab, callback){
+module.exports.getKelas = function(lab, callback){
   const query = {labdasar: lab};
-  Matkul.find(query, callback);
+  Kelas.find(query, callback);
 }
 
-module.exports.getMatkulById = function(id, callback){
-  Matkul.findById(id, callback);
+module.exports.getKelasById = function(id, callback){
+  Kelas.findById(id, callback);
 }
 
-module.exports.getPresentMatkul = function(lab, query, callback){
+module.exports.getPresentKelas = function(lab, query, callback){
   query.labdasar = lab;
-  Matkul.findOne(query, callback);
+  Kelas.findOne(query, callback);
 }
 
-module.exports.addMatkul = function(matkul, callback){
-  matkul.save(callback);
+module.exports.addKelas = function(kelas, callback){
+  kelas.save(callback);
 }

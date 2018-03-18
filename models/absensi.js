@@ -18,7 +18,7 @@ const AbsensiSchema = mongoose.Schema({
   },
   waktu: {
     type: Date,
-    required: true
+    required: false
   }
 });
 
@@ -29,10 +29,10 @@ module.exports.getStatus = function(nim, id_matkul, waktu, callback){
   Absensi.findOne(query, callback);
 };
 
-module.exports.setAbsensi = function(absensi, callback){
-  absensi.save(callback);
+module.exports.setAbsensi = function(absen, callback){
+  absen.save(callback);
 };
 
 module.exports.editAbsensi = function(id, absen, callback){
-  matkul.findByIdAndUpdate(id, absen, callback);
+  Absensi.findByIdAndUpdate(id, absen, callback);
 };
