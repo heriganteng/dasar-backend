@@ -72,7 +72,7 @@ router.post('/:id', (req, res, next) => {
 router.post('/edit/:id', (req, res, next) => {
   let presentDate = new Date();
   let presentTime = presentDate.getHours()*60 + presentDate.getMinutes();
-  Absensi.editAbsensi(req.params.id, req.params.body, (err, kelas) => {
+  Absensi.editAbsensi(req.params.id, req.body, (err, kelas) => {
     if(err){
       res.json({success: false, msg: "Perubahan gagal"});
     } else {

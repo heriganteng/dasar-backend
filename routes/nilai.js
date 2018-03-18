@@ -5,49 +5,47 @@ const Nilai = require('../models/nilai');
 const labdasar = require('../config/lab');
 
 // Show All Nilai
-router.get('/show', (req, res, next) => {
-  Nilai.getNilai(labdasar, (err, Nilai) => {
+router.get('/:id_kelas', (req, res, next) => {
+  Nilai.getNilai({id_kelas: req.params.id_kelas}, (err, nilai) => {
     if(err) throw err;
-    if(Nilai.length > 0){
-      res.json({success: true, data: Nilai});
+    if(nilai.length > 0){
+      res.json({success: true, data: nilai});
     } else {
-      return res.json({success: false, msg: 'Tidak ada mata kuliah'});
+      return res.json({success: false, msg: 'Nilai belum ada'});
     }
   });
 });
 
-// Show Present Nilai
-router.get('/now', (req, res, next) => {
-  let presentDate = new Date();
-  let presentTime = presentDate.getHours()*60 + presentDate.getMinutes();
-  Nilai.getPresentNilai(labdasar, {hari: presentDate.getDay(), jam_mulai: {$lt : presentTime}, jam_selesai: {$gt : presentTime}}, (err, Nilai) => {
-    if(err) throw err;
-    if(Nilai != null){
-      res.json({success: true, data: Nilai});
-    } else {
-      res.json({success: false, msg: 'Tidak ada mata kuliah'});  
-    }
-  });
-});
-
-// Input New Nilai
-router.post('/input', (req, res, next) => {
-  let newNilai = new Nilai({
-    kode_Nilai: req.body.kode_Nilai,
-    nama_Nilai: req.body.nama_Nilai,
-    kelas: req.body.kelas,
-    hari: req.body.hari,
-    jam_mulai: req.body.jam_mulai,
-    jam_selesai: req.body.jam_selesai,
-    jumlah_sks: req.body.jumlah_sks,
-    labdasar: labdasar,
-    asisten: req.body.asisten
-  });
-  Nilai.addNilai(newNilai, (err, Nilai) => {
+// Edit nilai
+router.post('/edit', (req, res, next) => {
+  Nilai.editNilai(req.body.id, {nilai: req.body.nilai, tanggal: Date.now()}, (err, nilai) => {
     if(err){
-      res.json({success: false, msg: "Gagal menambahkan mata kuliah"});
+      res.json({success: false, msg: "Perubahan gagal"});
     } else {
-      res.json({success: true, msg: "Berhasil menambahkan mata kuliah"});
+      res.json({success: true, msg: "Perubahan berhasil"});
+    }
+  });
+});
+
+// Input Nilai
+router.post('/:id_kelas', (req, res, next) => {
+  Nilai.getNilai({id_kelas: req.params.id_kelas, nim: req.body.nim, no_laporan: req.body.no_laporan}, (err, nilai) => {
+    if(err) throw err;
+    if(nilai.length > 0){
+      res.json({success: false, msg: 'Nilai sudah pernah diinput'});
+    } else {
+      let newNilai = new Nilai({
+        id_kelas: req.params.id_kelas,
+        nim: req.body.nim,
+        nilai: req.body.nilai,
+        no_laporan: req.body.no_laporan
+      });
+      Nilai.inputNilai(newNilai, (err, nilai) => {
+        if(err)
+          res.json({success: false, msg: 'Nilai gagal diinput'});
+        else 
+          res.json({success: true, msg: 'Nilai berhasil diinput'});
+      });
     }
   });
 });

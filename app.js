@@ -16,11 +16,12 @@ mongoose
 const app = express();
 
 const mahasiswa = require('./routes/mahasiswa');
-const matkul = require('./routes/matkul');
+const kelas = require('./routes/kelas');
 const matakuliah = require('./routes/mata-kuliah');
 const absensi = require('./routes/absensi');
 const fileRoutes = require('./routes/file');
 const materi = require('./routes/materi');
+const nilai = require('./routes/nilai');
 // Port Number
 const port = process.env.PORT || 8080;
 
@@ -54,11 +55,12 @@ app.use(passport.session());
 require('./config/passport')(passport);
 
 app.use('/mahasiswa', mahasiswa);
-app.use('/matkul', matkul);
+app.use('/kelas', kelas);
 app.use('/absensi', absensi);
 app.use('/file', fileRoutes);
 app.use('/matakuliah', matakuliah);
 app.use('/materi', materi);
+app.use('/nilai', nilai);
 
 // Index Route
 app.get('/', (req, res) => {

@@ -4,11 +4,11 @@ const config = require('../config/database');
 
 // Skema Nilai
 const NilaiSchema = mongoose.Schema({
-  id_Nilai: {
+  id_kelas: {
     type: String,
     required: true
   },
-  id_user: {
+  nim: {
     type: String,
     required: true
   },
@@ -16,43 +16,26 @@ const NilaiSchema = mongoose.Schema({
     type: Number,
     required: true
   },
-  jam_mulai: {
+  no_laporan: {
     type: Number,
     required: true
   },
-  jam_selesai: {
-    type: Number
-  },
-  jumlah_sks: {
-    type: Number,
-    default: 1,
-    required: true
-  },
-  labdasar: {
-    type: Number,
-    required: true,
-  },
-  asisten: {
-    type: Array
+  tanggal: {
+    type: Date,
+    default: Date.now
   }
 });
 
 const Nilai = module.exports = mongoose.model('Nilai', NilaiSchema);
 
-module.exports.getNilai = function(lab, callback){
-  const query = {labdasar: lab};
+module.exports.getNilai = function(query, callback){
   Nilai.find(query, callback);
 }
 
-module.exports.getNilaiById = function(id, callback){
-  Nilai.findById(id, callback);
-}
-
-module.exports.getPresentNilai = function(lab, query, callback){
-  query.labdasar = lab;
-  Nilai.findOne(query, callback);
-}
-
-module.exports.addNilai = function(Nilai, callback){
+module.exports.inputNilai = function(Nilai, callback){
   Nilai.save(callback);
 }
+
+module.exports.editNilai = function(id, data, callback){
+  Nilai.findByIdAndUpdate(id, data, callback);
+};

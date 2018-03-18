@@ -16,6 +16,21 @@ router.get('/show', (req, res, next) => {
   });
 });
 
+// Find Kelas
+router.post('/find', (req, res, next) => {
+  Kelas.findKelas(labdasar, req.body, (err, kelas) => {
+    if(err) throw err;    
+    if(kelas.length > 0){
+      if(req.body.kelas != undefined)
+        res.json({success: true, data: kelas[0]});
+      else
+        res.json({success: true, data: kelas});
+    } else {
+      return res.json({success: false, msg: 'Tidak ada mata kuliah'});
+    }
+  });
+});
+
 // Show Present Kelas
 router.get('/now', (req, res, next) => {
   let presentDate = new Date();

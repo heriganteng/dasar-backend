@@ -48,6 +48,11 @@ module.exports.getKelas = function(lab, callback){
   Kelas.find(query, callback);
 }
 
+module.exports.findKelas = function(lab, query, callback){
+  query.labdasar = lab;
+  Kelas.find(query, callback);
+}
+
 module.exports.getKelasById = function(id, callback){
   Kelas.findById(id, callback);
 }

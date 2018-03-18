@@ -33,6 +33,6 @@ module.exports.setAbsensi = function(absen, callback){
   absen.save(callback);
 };
 
-module.exports.editAbsensi = function(id, absen, callback){
-  Absensi.findByIdAndUpdate(id, absen, callback);
+module.exports.editAbsensi = function(id, data, callback){
+  Absensi.findByIdAndUpdate(id, data, callback);
 };
